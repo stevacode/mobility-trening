@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Mobility trening</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#17140f; --surface:#211c15; --surface2:#2b241a;
+    --bone:#ede6d6; --muted:#9a8f7a; --line:#3a3125;
+    --amber:#e0a32e; --clay:#c25e3a; --green:#7f9b5b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{background:var(--bg);color:var(--bone);font-family:'Inter',sans-serif;
+    font-size:15px;line-height:1.5;padding-bottom:80px;}
+  .wrap{max-width:560px;margin:0 auto;padding:0 16px;}
+  header{padding:22px 16px 14px;max-width:560px;margin:0 auto;}
+  .eyebrow{font-family:'Barlow Condensed',sans-serif;letter-spacing:.18em;
+    text-transform:uppercase;font-size:12px;color:var(--muted);font-weight:600;}
+  h1{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+    font-size:38px;line-height:.98;letter-spacing:-.01em;margin-top:2px;}
+  .meta{color:var(--muted);font-size:13px;margin-top:6px;}
+  .tip{font-size:12.5px;color:var(--muted);margin-top:8px;
+    border-left:2px solid var(--amber);padding-left:9px;}
+  .tip b{color:var(--bone);}
+  .dial-row{display:flex;align-items:center;gap:18px;margin-top:16px;}
+  .dial{position:relative;width:104px;height:104px;flex:none;}
+  .dial svg{transform:rotate(-90deg);}
+  .dial .pct{position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;}
+  .dial .pct b{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:700;line-height:1;}
+  .dial .pct span{font-size:11px;color:var(--muted);letter-spacing:.04em;}
+  .dial-note{font-size:13px;color:var(--muted);}
+  .dial-note b{color:var(--bone);font-weight:600;}
+  .flowline{font-family:'Barlow Condensed',sans-serif;font-weight:600;
+    letter-spacing:.04em;font-size:15px;margin-top:6px;color:var(--amber);}
+  .loop-key{display:flex;gap:6px;margin:16px 0 4px;font-size:11px;color:var(--muted);
+    font-family:'Barlow Condensed',sans-serif;letter-spacing:.1em;text-transform:uppercase;}
+  .loop-key span{display:flex;align-items:center;gap:5px;}
+  .dot{width:8px;height:8px;border-radius:50%;}
+  .dot.prep{background:var(--muted);}.dot.loop{background:var(--amber);}.dot.finish{background:var(--clay);}
+  .block{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    margin-top:12px;overflow:hidden;}
+  .block.done{border-color:var(--green);}
+  .bhead{display:flex;align-items:center;gap:12px;padding:14px 15px;cursor:pointer;}
+  .idx{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;
+    width:30px;height:30px;flex:none;border-radius:8px;display:flex;align-items:center;
+    justify-content:center;background:var(--surface2);color:var(--muted);border:1px solid var(--line);}
+  .block[data-tier="loop"] .idx{color:var(--amber);border-color:#4a3c1e;}
+  .block[data-tier="finish"] .idx{color:var(--clay);border-color:#4a2e22;}
+  .btitle{flex:1;}
+  .btitle .name{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:19px;line-height:1.05;}
+  .btitle .sub{font-size:12px;color:var(--muted);margin-top:1px;}
+  .count{font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--muted);flex:none;}
+  .count.full{color:var(--green);}
+  .chev{width:18px;flex:none;color:var(--muted);transition:transform .2s;}
+  .block.open .chev{transform:rotate(90deg);}
+  .blist{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+  .block.open .blist{max-height:1200px;}
+  .ex{display:flex;align-items:center;gap:11px;padding:11px 15px;border-top:1px solid var(--line);}
+  .check{width:22px;height:22px;flex:none;border-radius:6px;border:2px solid var(--line);
+    background:transparent;position:relative;cursor:pointer;transition:.15s;}
+  .ex.on .check{background:var(--green);border-color:var(--green);}
+  .ex.on .check::after{content:"";position:absolute;left:6px;top:2px;width:5px;height:10px;
+    border:solid #17140f;border-width:0 2px 2px 0;transform:rotate(45deg);}
+  .ex .txt{flex:1;font-size:14px;cursor:pointer;}
+  .ex.on .txt{color:var(--muted);text-decoration:line-through;}
+  .ex .reps{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;
+    color:var(--amber);flex:none;white-space:nowrap;}
+  .play{flex:none;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;
+    justify-content:center;background:var(--surface2);border:1px solid var(--line);
+    color:var(--amber);text-decoration:none;}
+  .play svg{width:13px;height:13px;}
+  .play.empty{opacity:0;pointer-events:none;}
+  .rules{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-top:20px;padding:16px;}
+  .rules h2{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  .rules p{font-size:13.5px;margin-bottom:9px;padding-left:16px;position:relative;}
+  .rules p::before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:var(--amber);}
+  .rules b{color:var(--bone);font-weight:600;}
+  .bar{position:fixed;bottom:0;left:0;right:0;background:rgba(23,20,15,.92);
+    backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:12px 16px;display:flex;justify-content:center;}
+  .bar .inner{max-width:560px;width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .bar .status{font-size:13px;color:var(--muted);}
+  .bar .status b{color:var(--bone);font-family:'Barlow Condensed',sans-serif;font-size:16px;}
+  .reset{background:transparent;border:1px solid var(--line);color:var(--bone);
+    font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.06em;
+    text-transform:uppercase;font-size:13px;padding:9px 16px;border-radius:9px;cursor:pointer;}
+  .reset:active{background:var(--surface2);}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Ido Portal · Floreio Project</div>
+  <h1>Mobility trening</h1>
+  <div class="meta">4–5× nedeljno &nbsp;·&nbsp; jedan krug ~20–25 min &nbsp;·&nbsp; sve je 1 serija</div>
+  <div class="tip">Tapni <b>▶</b> pored vežbe da vidiš klip pokreta (Antranikovi originalni klipovi).</div>
+
+  <div class="dial-row">
+    <div class="dial">
+      <svg width="104" height="104" viewBox="0 0 104 104">
+        <circle cx="52" cy="52" r="46" fill="none" stroke="#3a3125" stroke-width="8"/>
+        <circle id="ring" cx="52" cy="52" r="46" fill="none" stroke="#e0a32e" stroke-width="8"
+          stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="289"
+          style="transition:stroke-dashoffset .4s ease"/>
+      </svg>
+      <div class="pct"><b id="pctNum">0%</b><span>ukupno</span></div>
+    </div>
+    <div>
+      <div class="dial-note">Srednja četiri bloka su <b>krug</b> — smenjuješ čučanj i gornji deo da noge ne pregore.</div>
+      <div class="flowline">čučanj → ramena → čučanj → lopatice</div>
+    </div>
+  </div>
+
+  <div class="loop-key">
+    <span><i class="dot prep"></i>priprema</span>
+    <span><i class="dot loop"></i>krug</span>
+    <span><i class="dot finish"></i>završetak</span>
+  </div>
+</header>
+
+<div class="wrap" id="blocks"></div>
+
+<div class="wrap">
+  <div class="rules">
+    <h2>Pravila</h2>
+    <p><b>Kvalitet, ne broj.</b> Gde piše raspon (10–30), za početak radi donju granicu. Bolje 10 čistih nego 30 aljkavih.</p>
+    <p><b>Ako te oštro seče u zglobu</b> — smanji opseg, ne guraj kroz to. Ukočenost u kukovima i listovima posle prvog puta je normalna.</p>
+    <p><b>Prehab dan, 1× nedeljno:</b> uradi 2–3 kruga celog bloka umesto jednog.</p>
+    <p><b>Gležnjevi</b> nemaju video (originalni link je ugašen) — opis je u tekstu: težina na ivice stopala pa hodanje po njima.</p>
+    <p><b>Prelaz na floreio</b> tek kad izdržiš pasivni duboki čučanj (pete dole) 2 min bez muke i ručni zglobovi podnesu 60 s u položaju sklekа.</p>
+  </div>
+</div>
+
+<div class="bar">
+  <div class="inner">
+    <div class="status"><b id="doneCount">0</b> / <span id="totalCount">0</span> vežbi</div>
+    <button class="reset" onclick="resetAll()">Poništi</button>
+  </div>
+</div>
+
+<script>
+// Puni YouTube snimci rutina — svaki prikazuje sve vežbe tog bloka po redu.
+const SQ1="https://www.youtube.com/watch?v=xPwG2hqnOx0";
+const SQ2="https://www.youtube.com/watch?v=lbozu0DPcYI";
+const SH ="https://www.youtube.com/watch?v=1YHIV4a81Os";
+const SCAP="https://www.youtube.com/watch?v=y4Wo095zPnc";
+const GMB="https://www.youtube.com/watch?v=mSZWSQSSEjE";
+const V = {
+  gmb:GMB, sh:SH, sq2:SQ2,
+  s1a:SQ1,s1b:SQ1,s1c:SQ1,s1d:SQ1,s1e:SQ1,s1f:SQ1,s1g:SQ1,
+  extrot:SH,latr:SH,ohead:SH,
+  s2a:SQ2,s2b:SQ2,s2c:SQ2,
+  scpu:SCAP,pull:SCAP,whip:SCAP,disl:SCAP,
+};
+const DATA = [
+  {tier:"prep",name:"Zagrevanje",sub:"podigni puls",ex:[
+    ["Vijača ili bilo šta da se zagreješ","4–5 min",""],
+  ]},
+  {tier:"prep",name:"Ručni zglobovi",sub:"svaki put — nikad ne preskačeš (GMB serija)",ex:[
+    ["Finger pulses","10–15",V.gmb],
+    ["Palm pulses","10–15",V.gmb],
+    ["Bočne rotacije dlanova (side to side)","10–15",V.gmb],
+    ["Prednje rotacije laktova","10–15",V.gmb],
+    ["Bočno istezanje zgloba (nagni / odgurni)","5–10 s",V.gmb],
+    ["Zadnje istezanje zgloba — dlanovi dole","5–10 s",V.gmb],
+    ["Zadnje istezanje zgloba — dlanovi gore","5–10 s",V.gmb],
+    ["Zadnje rotacije laktova (Vulkan pozdrav)","10–15",V.gmb],
+    ["Prednji položaj, nagib napred što više","5–10 s",V.gmb],
+  ]},
+  {tier:"loop",name:"Squat Clinic 1.0",sub:"kukovi · noge · prsti",ex:[
+    ["Dinamičko istezanje lista (soleus)","10 / str.",V.s1a],
+    ["Rotacije kuka na sve četiri","10 / str.",V.s1b],
+    ["Rotacije kuka u čučnju","10 / str.",V.s1c],
+    ["Statično istezanje prstiju","10 / str.",V.s1d],
+    ["Dinamičko istezanje prstiju","10 / str.",V.s1e],
+    ["Statični čučanj (držanje)","~30 s",V.s1f],
+    ["Dinamički čučnjevi","10",V.s1g],
+  ]},
+  {tier:"loop",name:"Ramena — ROM + stabilizacija",sub:"potrebna traka",ex:[
+    ["Spoljašnja rotacija","10–15",V.extrot],
+    ["Bočno podizanje do 45°","10–15",V.latr],
+    ["Ruke iznad glave: rotacije + napred/nazad + držanje","10+10+10s",V.ohead],
+    ["Ruke u T, traka iza: isti protokol","10+10+10s",V.sh],
+    ["Ruke dole, traka iza: isti protokol","10+10+10s",V.sh],
+  ]},
+  {tier:"loop",name:"Squat Clinic 2.0",sub:"kičma za čučanj · po strani",ex:[
+    ["Knee push-aways (dinamički + hold)","10–30 / 10–30s",V.s2a],
+    ["Sky reaches (dinamički + hold)","10–30 / 10–30s",V.s2b],
+    ["Buddha prayers","10–30",V.s2c],
+    ["Squat bows, palčevi gore","10–30",V.sq2],
+    ["Squat bow (statični hold)","10–30 s",V.sq2],
+  ]},
+  {tier:"loop",name:"Skapularna mobilnost",sub:"lopatice",ex:[
+    ["Band scapular push-ups","10–15",V.scpu],
+    ["Overhead straight-arm pulldown","10–15",V.pull],
+    ["The whippet","10–15",V.whip],
+    ["Band dislocates","10–15",V.disl],
+  ]},
+  {tier:"finish",name:"Gležnjevi",sub:"kraj rutine",ex:[
+    ["Na prste + 10 koraka napred/nazad na prstima","10",""],
+    ["Prsti gore + 10 koraka na petama","10",""],
+    ["Inverzija + 10 koraka po spoljašnjim ivicama","10",""],
+    ["Everzija + 10 koraka po unutrašnjim ivicama","10",""],
+  ]},
+];
+
+const state = DATA.map(b=>b.ex.map(()=>false));
+const openState = DATA.map(()=>false);
+const TOTAL = DATA.reduce((s,b)=>s+b.ex.length,0);
+const chev='<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>';
+const playIcon='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+
+function render(){
+  document.getElementById("blocks").innerHTML = DATA.map((b,bi)=>{
+    const done=state[bi].filter(Boolean).length, full=done===b.ex.length;
+    const exs=b.ex.map((e,ei)=>{
+      const play=e[2]
+        ? `<a class="play" href="${e[2]}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${playIcon}</a>`
+        : `<span class="play empty"></span>`;
+      return `<div class="ex ${state[bi][ei]?'on':''}">
+        <div class="check" onclick="toggle(${bi},${ei})"></div>
+        <div class="txt" onclick="toggle(${bi},${ei})">${e[0]}</div>
+        <div class="reps">${e[1]}</div>${play}</div>`;
+    }).join("");
+    return `<div class="block ${full?'done':''} ${openState[bi]?'open':''}" data-tier="${b.tier}">
+      <div class="bhead" onclick="toggleBlock(${bi})">
+        <div class="idx">${bi===0?'W':bi}</div>
+        <div class="btitle"><div class="name">${b.name}</div><div class="sub">${b.sub}</div></div>
+        <div class="count ${full?'full':''}">${done}/${b.ex.length}</div>${chev}
+      </div>
+      <div class="blist">${exs}</div></div>`;
+  }).join("");
+  updateDial();
+}
+function toggle(bi,ei){event.stopPropagation();state[bi][ei]=!state[bi][ei];render();}
+function toggleBlock(bi){openState[bi]=!openState[bi];render();}
+function resetAll(){state.forEach(b=>b.fill(false));render();}
+function updateDial(){
+  const done=state.reduce((s,b)=>s+b.filter(Boolean).length,0);
+  document.getElementById("ring").style.strokeDashoffset=289*(1-done/TOTAL);
+  document.getElementById("pctNum").textContent=Math.round(done/TOTAL*100)+"%";
+  document.getElementById("doneCount").textContent=done;
+  document.getElementById("totalCount").textContent=TOTAL;
+}
+render();
+</script>
+</body>
+</html>
